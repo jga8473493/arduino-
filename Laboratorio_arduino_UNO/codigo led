@@ -1,1 +1,14 @@
 
+-----------Codigo que prenda y apage con diley:  https://www.tinkercad.com/things/2Ptd6o265vE-luz-rapida
+void setup()
+{
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+void loop()
+{
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100); // Reduce de 250 a 100 milisegundos para parpadear más rápido
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(100);
+}
