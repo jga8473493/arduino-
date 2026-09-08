@@ -1,5 +1,5 @@
 
------------Codigo que prenda y apage con diley:  https://www.tinkercad.com/things/2Ptd6o265vE-luz-rapida
+Codigo que prenda y apage con diley:  https://www.tinkercad.com/things/2Ptd6o265vE-luz-rapida
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);

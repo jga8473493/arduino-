@@ -1,0 +1,21 @@
+https://wokwi.com/projects/473940160398161921
+
+int pinPOT = A0;
+int pinLED = 3;
+int BRILLO = 0;
+
+void setup() {
+  pinMode(pinPOT, INPUT);
+  pinMode(pinLED, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  BRILLO = analogRead(pinPOT);
+  BRILLO = BRILLO / 4; // Convierte de 0-1023 a 0-255
+  
+  analogWrite(pinLED, BRILLO);
+  Serial.println(BRILLO);
+  
+  delay(10);
+}
