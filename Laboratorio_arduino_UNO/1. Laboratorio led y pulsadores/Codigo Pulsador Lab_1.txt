@@ -1,0 +1,17 @@
+#define led 10 // colocamos el led en el pin 10
+#define boton 3 // colocamos el boton en el pin 3
+
+void setup()
+{
+  pinMode(led, OUTPUT); // utilizamos el led como salida
+  pinMode(boton, INPUT_PULLUP); // estamos utilizando la resistencia interna
+}
+
+void loop(){
+  if(digitalRead(boton) == HIGH){ // si presionas el boton el led se apaga (segun la logica actual)
+    digitalWrite(led, LOW);
+  }
+  else{ // si esta recibiendo senal el led se prende
+    digitalWrite(led, HIGH);
+  }
+}
