@@ -24,7 +24,7 @@ void setup() {
   delay(2000);
   lcd.clear();
 }
-
+ //J4C0b 
 void loop() {
   // Esperar 2 segundos entre mediciones (el DHT22 toma un tiempo en actualizar)
   delay(2000);
