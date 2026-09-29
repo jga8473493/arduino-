@@ -24,7 +24,7 @@ void setup() {
   // Limpia la pantalla
   lcd.clear();
 }
-
+ //J4c0b
 void loop() {
 
   // Pide al sensor que mida la temperatura
