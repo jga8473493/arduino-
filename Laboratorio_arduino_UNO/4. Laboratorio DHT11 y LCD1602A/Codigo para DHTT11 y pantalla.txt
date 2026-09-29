@@ -24,7 +24,7 @@ void setup() {
   delay(2000);
   lcd.clear();
 }
-
+ //J4c0b
 void loop() {
   // Esperar 2 segundos entre mediciones
   delay(2000);
