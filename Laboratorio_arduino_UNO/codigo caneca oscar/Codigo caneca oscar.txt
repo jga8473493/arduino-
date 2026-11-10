@@ -1,0 +1,110 @@
+#include <Servo.h>
+
+// --- ASIGNACIÓN DE PINES ---
+const int PIN_SENSOR_IR = 4;     // Sensor Óptico IR (Caneca Izquierda - Papel)
+const int PIN_TRIG = 2;          // TRIG Ultrasónico (Caneca Derecha - Plástico)
+const int PIN_ECHO = 3;          // ECHO Ultrasónico (Caneca Derecha - Plástico)
+
+const int PIN_SERVO_PAPEL = 10;   // Servo Caneca Izquierda (Óptico)
+const int PIN_SERVO_PLASTICO = 9; // Servo Caneca Derecha (Ultrasónico)
+
+// OBJETOS SERVO
+Servo servoPapel;
+Servo servoPlastico;
+
+// CONFIGURACIÓN DE DISTANCIA Y TIEMPO
+const int DISTANCIA_UMBRAL = 15; // cm para activar ultrasónico
+const unsigned long TIEMPO_ABIERTO = 3500; // 3.5 segundos de apertura
+
+// VARIABLES DE ESTADO MULTITAREA (Sin delay)
+bool estadoPapel = false;
+bool estadoPlastico = false;
+
+unsigned long tiempoInicioPapel = 0;
+unsigned long tiempoInicioPlastico = 0;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(PIN_SENSOR_IR, INPUT);
+  pinMode(PIN_TRIG, OUTPUT);
+  pinMode(PIN_ECHO, INPUT);
+
+  servoPapel.attach(PIN_SERVO_PAPEL);
+  servoPlastico.attach(PIN_SERVO_PLASTICO);
+
+  // Posición inicial cerradas (0°)
+  servoPapel.write(0);
+  servoPlastico.write(0);
+  delay(500);
+
+  // Prueba de movimiento al encender
+  servoPapel.write(90);
+  delay(500);
+  servoPapel.write(0);
+
+  servoPlastico.write(90);
+  delay(500);
+  servoPlastico.write(0);
+
+  Serial.println("=== CANECAS INDEPENDIENTES LISTAS ===");
+}
+
+void loop() {
+  unsigned long tiempoActual = millis();
+
+  // ===================================================
+  // 1. CANECA IZQUIERDA (Sensor Óptico -> Servo Pin 10)
+  // ===================================================
+  int valorIR = digitalRead(PIN_SENSOR_IR);
+
+  // Si detecta reflejo (LOW) y la tapa no está ya abierta
+  if (valorIR == LOW && !estadoPapel) {
+    Serial.println("-> CANECA IZQUIERDA: Objeto detectado por Óptico. Abriendo Pin 10...");
+    servoPapel.write(90);
+    estadoPapel = true;
+    tiempoInicioPapel = tiempoActual;
+    delay(50); // Pequeño escalonamiento de corriente
+  }
+
+  // Cerrar tapa izquierda tras cumplir el tiempo
+  if (estadoPapel && (tiempoActual - tiempoInicioPapel >= TIEMPO_ABIERTO)) {
+    servoPapel.write(0);
+    estadoPapel = false;
+    Serial.println("-> CANECA IZQUIERDA: Cerrada.");
+  }
+
+
+  // ===================================================
+  // 2. CANECA DERECHA (Sensor Ultrasónico -> Servo Pin 9)
+  // ===================================================
+  digitalWrite(PIN_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(PIN_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(PIN_TRIG, LOW);
+
+  long duracion = pulseIn(PIN_ECHO, HIGH, 10000); // Timeout corto de 10ms
+  int distancia = duracion * 0.034 / 2;
+
+  // Si detecta objeto a distancia válida (2-15 cm) y la tapa no está ya abierta
+  if (distancia >= 2 && distancia <= DISTANCIA_UMBRAL && !estadoPlastico) {
+    Serial.print("-> CANECA DERECHA: Objeto a ");
+    Serial.print(distancia);
+    Serial.println(" cm. Abriendo Pin 9...");
+    
+    servoPlastico.write(90);
+    estadoPlastico = true;
+    tiempoInicioPlastico = tiempoActual;
+    delay(50); // Pequeño escalonamiento de corriente
+  }
+
+  // Cerrar tapa derecha tras cumplir el tiempo
+  if (estadoPlastico && (tiempoActual - tiempoInicioPlastico >= TIEMPO_ABIERTO)) {
+    servoPlastico.write(0);
+    estadoPlastico = false;
+    Serial.println("-> CANECA DERECHA: Cerrada.");
+  }
+
+  delay(40); // Muestreo no bloqueante
+}
